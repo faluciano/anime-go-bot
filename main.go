@@ -1,12 +1,11 @@
 package main
 
 import (
-	"flag"
 	"fmt"
 	"os"
 	"os/signal"
 	"syscall"
-
+	"github.com/joho/godotenv"
 	"github.com/bwmarrin/discordgo"
 )
 
@@ -16,9 +15,8 @@ var (
 )
 
 func init() {
-
-	flag.StringVar(&Token, "t", "", "Bot Token")
-	flag.Parse()
+	godotenv.Load()
+	Token = os.GetEnv("Token")
 }
 
 func main() {
