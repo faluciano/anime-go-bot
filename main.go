@@ -2,11 +2,12 @@ package main
 
 import (
 	"fmt"
+	"github.com/bwmarrin/discordgo"
+	"github.com/joho/godotenv"
 	"os"
 	"os/signal"
+	"strings"
 	"syscall"
-	"github.com/joho/godotenv"
-	"github.com/bwmarrin/discordgo"
 )
 
 // Variables used for command line parameters
@@ -15,8 +16,12 @@ var (
 )
 
 func init() {
-	godotenv.Load()
-	Token = os.GetEnv("Token")
+	err := godotenv.Load()
+	if err != nil {
+		fmt.Println("Could not find Token")
+		return
+	}
+	Token = os.Getenv("Token")
 }
 
 func main() {
@@ -61,12 +66,14 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 		return
 	}
 	// If the message is "ping" reply with "Pong!"
-	if m.Content == "ping" {
+	if strings.ToLower(m.Content) == "ping" {
+		fmt.Println("Pong!")
 		s.ChannelMessageSend(m.ChannelID, "Pong!")
 	}
 
 	// If the message is "pong" reply with "Ping!"
-	if m.Content == "pong" {
+	if strings.ToLower(m.Content) == "pong" {
+		fmt.Println("Ping!")
 		s.ChannelMessageSend(m.ChannelID, "Ping!")
 	}
 }
