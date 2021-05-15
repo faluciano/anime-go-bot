@@ -1,6 +1,6 @@
 module github.com/faluciano/anime-go-bot
 
-go 1.16
+go 1.15
 
 require (
 	github.com/bwmarrin/discordgo v0.23.2 // indirect
