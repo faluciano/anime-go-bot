@@ -71,4 +71,8 @@ func handleImage(s *discordgo.Session, m []string, id string, attach []*discordg
 	s.ChannelMessageSend(id, respMap["video"])
 }
 
-
+//!quote command
+//Returns a quote based on the user's query
+func handleQuote(s *discordgo.Session, m []string, id string, attach []*discordgo.MessageAttachment){
+	s.ChannelMessageSend(id,"Quote")
+}
