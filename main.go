@@ -1,9 +1,11 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"github.com/bwmarrin/discordgo"
 	"github.com/joho/godotenv"
+	"net/http"
 	"os"
 	"os/signal"
 	"strings"
@@ -13,7 +15,8 @@ import (
 var (
 	Token string
 	args  = make(map[string]func(s *discordgo.Session, m []string, id string, attach []*discordgo.MessageAttachment))
-)
+	animeUrl = "https://api.trace.moe/search?anilistInfo&url="
+	)
 
 func init() {
 	err := godotenv.Load()
@@ -68,9 +71,6 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 		return
 	}
 	content := strings.Split(m.Content, " ")
-	fmt.Println(content)
-	fmt.Println(len(content))
-	fmt.Println(content[0] == "")
 	if content[0] == "" || content[0][0] != '!' {
 		return
 	}
@@ -100,6 +100,25 @@ func handlePing(s *discordgo.Session, m []string, id string, attach []*discordgo
 }
 
 func handleImage(s *discordgo.Session, m []string, id string, attach []*discordgo.MessageAttachment) {
-	fmt.Println(attach[0].URL)
-	s.ChannelMessageSend(id, attach[0].URL)
+	if len(attach) == 0{
+		return
+	}
+	resp, err := http.Get(animeUrl+attach[0].URL)
+	if err != nil{
+		return
+	}
+	defer resp.Body.Close()
+	var jResp AnimeResult
+	if err:= json.NewDecoder(resp.Body).Decode(&jResp); err != nil {
+		fmt.Println("something went wrong dude")
+	}
+	respMap := jResp.StringOutput(0)
+	//fmt.Println(respMap["title_nat"])
+	//fmt.Println(respMap["title_nat"])
+	//fmt.Println(respMap["from"])
+	//fmt.Println(respMap["video"])
+	//fmt.Println(respMap["episode"])
+	retStr := fmt.Sprintf("Title:%s\nEpisode:%s\nFrom:%s\nTo:%s",respMap["title_eng"],respMap["episode"],respMap["from"],respMap["to"])
+	s.ChannelMessageSend(id,retStr)
+	s.ChannelMessageSend(id, respMap["video"])
 }
