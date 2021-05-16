@@ -8,11 +8,11 @@ import (
 	"os/signal"
 	"strings"
 	"syscall"
-)
+) // Variables used for command line parameters
 
-// Variables used for command line parameters
 var (
 	Token string
+	args  = make(map[string]func(s *discordgo.Session, m []string, id string, attach []*discordgo.MessageAttachment))
 )
 
 func init() {
@@ -22,6 +22,8 @@ func init() {
 		return
 	}
 	Token = os.Getenv("Token")
+	args["ping"] = handlePing
+	args["anime"] = handleImage
 }
 
 func main() {
@@ -65,15 +67,39 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 	if m.Author.ID == s.State.User.ID {
 		return
 	}
+	content := strings.Split(m.Content, " ")
+	fmt.Println(content)
+	fmt.Println(len(content))
+	fmt.Println(content[0] == "")
+	if content[0] == "" || content[0][0] != '!' {
+		return
+	}
+	id := m.ChannelID
+	attach := m.Attachments
+	if val, ok := args[content[0][1:]]; ok {
+		val(s, content[1:], id, attach)
+	}
+}
+
+func handlePing(s *discordgo.Session, m []string, id string, attach []*discordgo.MessageAttachment) {
+	if len(m) == 0 {
+		return
+	}
+	fmt.Println(len(m))
 	// If the message is "ping" reply with "Pong!"
-	if strings.ToLower(m.Content) == "ping" {
+	if strings.ToLower(m[0]) == "ping" {
 		fmt.Println("Pong!")
-		s.ChannelMessageSend(m.ChannelID, "Pong!")
+		s.ChannelMessageSend(id, "Pong!")
 	}
 
 	// If the message is "pong" reply with "Ping!"
-	if strings.ToLower(m.Content) == "pong" {
+	if strings.ToLower(m[0]) == "pong" {
 		fmt.Println("Ping!")
-		s.ChannelMessageSend(m.ChannelID, "Ping!")
+		s.ChannelMessageSend(id, "Ping!")
 	}
+}
+
+func handleImage(s *discordgo.Session, m []string, id string, attach []*discordgo.MessageAttachment) {
+	fmt.Println(attach[0].URL)
+	s.ChannelMessageSend(id, attach[0].URL)
 }
