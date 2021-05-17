@@ -13,6 +13,7 @@ var (
 	Token    string
 	args     = make(map[string]func(s *discordgo.Session, m []string, id string, attach []*discordgo.MessageAttachment))
 	animeUrl = "https://api.trace.moe/search?anilistInfo&url="
+	quotesUrl = "https://animechan.vercel.app/api/"
 )
 
 func init() {

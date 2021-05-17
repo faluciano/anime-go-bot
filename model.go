@@ -57,10 +57,15 @@ type Quotes struct{
 
 //Returns a map of values in the response
 func (t Quotes) MapOutput() map[string]string{
-	idx := rand.Intn(10)
+	idx := rand.Intn(5)
+	retMap := t.Result[idx].MapOutput()
+	return retMap
+}
+
+func (t Result) MapOutput() map[string]string{
 	retMap := make(map[string]string)
-	retMap["anime"]=t.Result[idx].Anime
-	retMap["character"] = t.Result[idx].Character
-	retMap["quote"] = t.Result[idx].Quote
+	retMap["anime"]=t.Anime
+	retMap["character"] = t.Character
+	retMap["quote"] = t.Quote
 	return retMap
 }

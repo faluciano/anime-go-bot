@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/bwmarrin/discordgo"
+	"math/rand"
 	"net/http"
 	"strings"
 )
@@ -74,5 +75,24 @@ func handleImage(s *discordgo.Session, m []string, id string, attach []*discordg
 //!quote command
 //Returns a quote based on the user's query
 func handleQuote(s *discordgo.Session, m []string, id string, attach []*discordgo.MessageAttachment){
-	s.ChannelMessageSend(id,"Quote")
+	newUrl := quotesUrl
+	retStr := ""
+	if len(m) == 0{
+		newUrl=newUrl+"random"
+		resp, err := http.Get(newUrl)
+		if err != nil{
+			fmt.Println("Something went wrong")
+			return
+		}
+		defer resp.Body.Close()
+		var randQuote Result
+		if err:= json.NewDecoder(resp.Body).Decode(&randQuote); err != nil {
+			fmt.Println("something went wrong dude")
+		}
+		respMap := randQuote.MapOutput()
+		retStr = fmt.Sprintf("Anime: %s\nCharacter: %s\nQuote: %s\n",respMap["anime"],respMap["character"],respMap["quote"])
+	}
+	page := rand.Intn(6)
+	fmt.Println(page)
+	s.ChannelMessageSend(id,retStr)
 }
