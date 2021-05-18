@@ -4,8 +4,10 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/bwmarrin/discordgo"
+	"io/ioutil"
 	"math/rand"
 	"net/http"
+	"strconv"
 	"strings"
 )
 
@@ -86,13 +88,34 @@ func handleQuote(s *discordgo.Session, m []string, id string, attach []*discordg
 		}
 		defer resp.Body.Close()
 		var randQuote Result
-		if err:= json.NewDecoder(resp.Body).Decode(&randQuote); err != nil {
+		bod, err := ioutil.ReadAll(resp.Body)
+		if err:= json.Unmarshal(bod,&randQuote); err != nil {
 			fmt.Println("something went wrong dude")
 		}
+		fmt.Println(randQuote)
 		respMap := randQuote.MapOutput()
 		retStr = fmt.Sprintf("Anime: %s\nCharacter: %s\nQuote: %s\n",respMap["anime"],respMap["character"],respMap["quote"])
+	} else{
+		page := rand.Intn(3)
+		newUrl = newUrl+"quotes/character?name="+strings.Join(m," ")+"&page="+strconv.Itoa(page)
+		fmt.Println(newUrl)
+		resp, err := http.Get(newUrl)
+		if err != nil{
+			fmt.Println("Something went wrong")
+			return
+		}
+		defer resp.Body.Close()
+		bod, err := ioutil.ReadAll(resp.Body)
+		var randQuote []Result
+		if err:= json.Unmarshal(bod,&randQuote); err != nil {
+			fmt.Println(err)
+			fmt.Println("something went wrong dude")
+		}
+		idx := rand.Intn(5)
+		respMap := randQuote[idx].MapOutput()
+		fmt.Println(randQuote)
+		//respMap := randQuote.MapOutput()
+		retStr = fmt.Sprintf("Anime: %s\nCharacter: %s\nQuote: %s\n",respMap["anime"],respMap["character"],respMap["quote"])
 	}
-	page := rand.Intn(6)
-	fmt.Println(page)
 	s.ChannelMessageSend(id,retStr)
 }

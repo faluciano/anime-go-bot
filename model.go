@@ -55,13 +55,14 @@ type Quotes struct{
 	Result []Result
 }
 
-//Returns a map of values in the response
+//Returns a random quote from the character
 func (t Quotes) MapOutput() map[string]string{
 	idx := rand.Intn(5)
 	retMap := t.Result[idx].MapOutput()
 	return retMap
 }
 
+//Returns a map from the quote
 func (t Result) MapOutput() map[string]string{
 	retMap := make(map[string]string)
 	retMap["anime"]=t.Anime
