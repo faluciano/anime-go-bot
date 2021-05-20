@@ -98,10 +98,9 @@ func handleQuote(s *discordgo.Session, m []string, id string, attach []*discordg
 	} else{
 		page := rand.Intn(3)
 		newUrl = newUrl+"quotes/character?name="+strings.Join(m," ")+"&page="+strconv.Itoa(page)
-		fmt.Println(newUrl)
 		resp, err := http.Get(newUrl)
 		if err != nil{
-			fmt.Println("Something went wrong")
+			fmt.Println("Something went wrong with the request")
 			return
 		}
 		defer resp.Body.Close()
@@ -109,12 +108,11 @@ func handleQuote(s *discordgo.Session, m []string, id string, attach []*discordg
 		var randQuote []Result
 		if err:= json.Unmarshal(bod,&randQuote); err != nil {
 			fmt.Println(err)
-			fmt.Println("something went wrong dude")
+			fmt.Println("Json could not be parsed")
+			return
 		}
 		idx := rand.Intn(5)
 		respMap := randQuote[idx].MapOutput()
-		fmt.Println(randQuote)
-		//respMap := randQuote.MapOutput()
 		retStr = fmt.Sprintf("Anime: %s\nCharacter: %s\nQuote: %s\n",respMap["anime"],respMap["character"],respMap["quote"])
 	}
 	s.ChannelMessageSend(id,retStr)
