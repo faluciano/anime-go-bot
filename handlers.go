@@ -62,12 +62,24 @@ func handleImage(s *discordgo.Session, m []string, id string, attach []*discordg
 	}
 	defer resp.Body.Close()
 	var jResp AnimeResult
+	var jRespAlt AnimeResultAlt
+	isAlt := false
 	//Parse response into a go struct
 	if err:= json.NewDecoder(resp.Body).Decode(&jResp); err != nil {
-		fmt.Println("something went wrong dude")
+		fmt.Println("Trying episode list parse")
+		isAlt = true
+		if err:= json.NewDecoder(resp.Body).Decode(&jRespAlt); err != nil {
+			fmt.Println("Not an alt response")
+			return
+		}
 	}
-	//Returns the struct as a map
-	respMap := jResp.MapOutput(0)
+	respMap := make(map[string]string)
+	//Returns the struct as a map.
+	if isAlt == true {
+		respMap = jRespAlt.MapOutput(0)
+	} else {
+		respMap = jResp.MapOutput(0)
+	}
 	//String to be returned to the user
 	retStr := fmt.Sprintf("Title: %s\nEpisode: %s\nFrom: %s\nTo: %s",respMap["title_eng"],respMap["episode"],respMap["from"],respMap["to"])
 	s.ChannelMessageSend(id,retStr)
@@ -94,7 +106,10 @@ func handleQuote(s *discordgo.Session, m []string, id string, attach []*discordg
 		}
 		fmt.Println(randQuote)
 		respMap := randQuote.MapOutput()
-		retStr = fmt.Sprintf("Anime: %s\nCharacter: %s\nQuote: %s\n",respMap["anime"],respMap["character"],respMap["quote"])
+		retStr = fmt.Sprintf("Anime: %s\nCharacter: %s\nQuote: %s\n",
+			respMap["anime"],
+			respMap["character"],
+			respMap["quote"])
 	} else{
 		page := rand.Intn(3)
 		newUrl = newUrl+"quotes/character?name="+strings.Join(m," ")+"&page="+strconv.Itoa(page)
@@ -113,7 +128,10 @@ func handleQuote(s *discordgo.Session, m []string, id string, attach []*discordg
 		}
 		idx := rand.Intn(5)
 		respMap := randQuote[idx].MapOutput()
-		retStr = fmt.Sprintf("Anime: %s\nCharacter: %s\nQuote: %s\n",respMap["anime"],respMap["character"],respMap["quote"])
+		retStr = fmt.Sprintf("Anime: %s\nCharacter: %s\nQuote: %s\n",
+			respMap["anime"],
+			respMap["character"],
+			respMap["quote"])
 	}
 	s.ChannelMessageSend(id,retStr)
 }

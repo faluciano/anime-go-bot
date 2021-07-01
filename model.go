@@ -32,14 +32,38 @@ type AnimeResult struct {
 	Result []InResult `json:"result"`
 }
 
+type AnimeResultAlt struct {
+	Result []InResultAlt `json:"result"`
+}
+
+//Optional result with episode list
+type InResultAlt struct{
+	Titles Titles `json:"anilist"`
+	Episode []int `json:"episode"`
+	From float64 `json:"from"`
+	To float64 `json:"to"`
+	Video string `json:"video"`
+}
+
 //Returns a map of the values in the response
 func (t AnimeResult) MapOutput(idx int) map[string]string {
 	retMap := make(map[string]string)
 	retMap["title_eng"] = t.Result[idx].Titles.Title.English
 	retMap["title_nat"] = t.Result[idx].Titles.Title.Native
 	retMap["episode"] = strconv.Itoa(t.Result[idx].Episode)
-	retMap["from"] = fmt.Sprintf("%f", t.Result[idx].From)
-	retMap["to"] = fmt.Sprintf("%f", t.Result[idx].To)
+	retMap["from"] = fmt.Sprintf("%.2f", t.Result[idx].From/60)
+	retMap["to"] = fmt.Sprintf("%.2f", t.Result[idx].To/60)
+	retMap["video"] = t.Result[idx].Video
+	return retMap
+}
+
+func (t AnimeResultAlt) MapOutput(idx int) map[string]string {
+	retMap := make(map[string]string)
+	retMap["title_eng"] = t.Result[idx].Titles.Title.English
+	retMap["title_nat"] = t.Result[idx].Titles.Title.Native
+	retMap["episode"] = strconv.Itoa(t.Result[idx].Episode[0])
+	retMap["from"] = fmt.Sprintf("%.2f", t.Result[idx].From/60)
+	retMap["to"] = fmt.Sprintf("%.2f", t.Result[idx].To/60)
 	retMap["video"] = t.Result[idx].Video
 	return retMap
 }
